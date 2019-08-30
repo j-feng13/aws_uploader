@@ -1,5 +1,3 @@
-use inotify;
-
 use inotify::{EventMask, Inotify, WatchMask};
 
 pub fn watch(watch_dir: &str) {
