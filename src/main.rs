@@ -5,7 +5,7 @@ use std::path::Path;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let watch_dir: &str = &args[1];
-    if Path::new(watch_dir).is_dir() == false {
+    if !Path::new(watch_dir).is_dir() {
         panic!("Expected path to directory");
     }
 
