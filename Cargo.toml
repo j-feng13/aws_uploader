@@ -6,3 +6,5 @@ edition = "2018"
 
 [dependencies]
 inotify = "0.7"
+rusoto_core = "0.40.0"
+rusoto_s3 = "0.40.0"
