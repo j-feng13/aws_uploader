@@ -62,7 +62,7 @@ fn upload_file(
     let mut image_file = File::open(image_path)?;
     let mut content = Vec::new();
     image_file.read_to_end(&mut content)?;
-    let s3_client = S3Client::new(Region::UsEast2);
+    let s3_client = S3Client::new(Region::default());
     let put_request = PutObjectRequest {
         bucket: String::from("myglasseye.studio.photos"),
         key: event_name.to_string(),
