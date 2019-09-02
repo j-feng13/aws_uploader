@@ -31,7 +31,10 @@ pub fn watch(watch_dir: &str) {
                 if event.mask.contains(EventMask::ISDIR) {
                     println!("Directory created: {:?}", event.name);
                 } else {
-                    upload_file(event.name.unwrap().to_str().unwrap(), watch_dir)?;
+                    match upload_file(event.name.unwrap().to_str().unwrap(), watch_dir) {
+                        Ok(_) => println!("success"),
+                        Err(e) => println!("{}", e),
+                    }
                     println!("File created: {:?}", event.name);
                 }
             } else if event.mask.contains(EventMask::DELETE) {
