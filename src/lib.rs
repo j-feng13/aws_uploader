@@ -1,4 +1,9 @@
 use inotify::{EventMask, Inotify, WatchMask};
+use rusoto_core::{Region, RusotoError};
+use rusoto_s3::{PutObjectError, PutObjectOutput, PutObjectRequest, S3Client, S3};
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
 
 pub fn watch(watch_dir: &str) {
     let mut inotify = Inotify::init().expect("Failed to initialize inotify");
@@ -26,6 +31,10 @@ pub fn watch(watch_dir: &str) {
                 if event.mask.contains(EventMask::ISDIR) {
                     println!("Directory created: {:?}", event.name);
                 } else {
+                    match upload_file(event.name.unwrap().to_str().unwrap(), watch_dir) {
+                        Ok(_) => println!("success"),
+                        Err(e) => println!("{}", e),
+                    }
                     println!("File created: {:?}", event.name);
                 }
             } else if event.mask.contains(EventMask::DELETE) {
@@ -43,4 +52,26 @@ pub fn watch(watch_dir: &str) {
             }
         }
     }
+}
+
+fn upload_file(
+    event_name: &str,
+    watch_dir: &str,
+) -> Result<PutObjectOutput, RusotoError<PutObjectError>> {
+    let image_path = Path::new(watch_dir).join(event_name);
+    let mut image_file = File::open(image_path)?;
+    let mut content = Vec::new();
+    image_file.read_to_end(&mut content)?;
+    let s3_client = S3Client::new(Region::default());
+    let put_request = PutObjectRequest {
+        bucket: String::from("myglasseye.studio.photos"),
+        key: event_name.to_string(),
+        body: Some(content.into()),
+        ..Default::default()
+    };
+
+    s3_client
+        .put_object(put_request)
+        .sync()
+        .map_err(|e| e.into())
 }
